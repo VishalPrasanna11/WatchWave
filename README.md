@@ -35,19 +35,19 @@
    git clone https://github.com/your-username/watchwave.git
    ```
 
-## Navigate to the project directory:
+2. Navigate to the project directory:
 
 ```bash
 cd watchwave
 ```
 
-## Install dependencies for both client and server:
+3. Install dependencies for both client and server:
 
 ```bash
 npm install
 ```
 
-## Set up environment variables in a `.env` file:
+4. Set up environment variables in a `.env` file:
 
 ```bash
 MONGO_URI=<your-mongo-uri>
@@ -56,14 +56,14 @@ AWS_SECRET_KEY=<your-aws-secret-key>
 S3_BUCKET_NAME=<your-s3-bucket-name>
 ```
 
-## Start the development server:
+5. Start the development server:
 
 ```bash
 cd server
 npm run dev
 ```
 
-## Start the client:
+6. Start the client:
 
 ```bash
 cd client
