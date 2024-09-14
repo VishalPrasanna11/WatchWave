@@ -1,7 +1,9 @@
+import Player from "@/components/Player";
 const WatchPage = () => {
     return (
-        <div>
-            <h1>Watch Page</h1>
+        <div style={{ textAlign: 'center' }}>
+            <Player />
+            
         </div>
     );
 }
