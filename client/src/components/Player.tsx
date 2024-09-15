@@ -1,16 +1,19 @@
-import exp from "constants"
-import ReactPlayer from "react-player"
+import React from "react";
+import ReactPlayer from "react-player";
 
-const Player = () => {
+interface PlayerProps {
+    url: string;
+}
+
+const Player: React.FC<PlayerProps> = ({ url }) => {
     return (
         <div className="flex justify-center">
             <ReactPlayer
-                // url="https://www.youtube.com/watch?v=Tn6-PIqc4UM&ab_channel=Fireship"
-                url ="https://streamable.com/zqa242"
-                controls    
+                url={url}
+                controls
             />
         </div>
-    )
+    );
 }
 
 export default Player;

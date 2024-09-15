@@ -3,9 +3,10 @@ import "dotenv/config";
 import sequelize from './config/database';
 import uploadRoutes from './routes/upload';
 import { connectToPostgres } from './config/pgClient';
+import cors from 'cors';
 
 const app = express();
-
+app.use(cors());
 // Middleware
 app.use(express.json());
 
