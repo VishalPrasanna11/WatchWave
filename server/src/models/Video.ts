@@ -7,6 +7,8 @@ class Video extends Model {
   public description!: string;
   public metatags!: string[];
   public videoUrl!: string;
+  public readonly createdAt!: Date;
+  public readonly updatedAt!: Date;
 }
 
 Video.init(
@@ -16,7 +18,7 @@ Video.init(
       allowNull: false,
     },
     description: {
-      type: DataTypes.TEXT,
+      type: DataTypes.STRING,
       allowNull: false,
     },
     metatags: {

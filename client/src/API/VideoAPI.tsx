@@ -1,6 +1,6 @@
 import {useQuery ,useMutation} from "@tanstack/react-query";
 import { Video } from "../types";
-
+import {toast} from "sonner";
 import { VideoUpload} from "../types";
 const BASE_URL = 'http://localhost:3000/api/videos'; // Adjust if necessary
 
@@ -9,7 +9,7 @@ export const uploadVideo = async (videoData: VideoUpload): Promise<Video> => {
   try {
     const formData = new FormData();
     formData.append('title', videoData.title);
-    formData.append('videoFile', videoData.videoFile); // Assuming videoFile is a File object
+    formData.append('video', videoData.video); // Assuming videoFile is a File object
     formData.append('description', videoData.description || '');
 
     if (videoData.metatags) {
@@ -34,11 +34,19 @@ export const uploadVideo = async (videoData: VideoUpload): Promise<Video> => {
 };
 
 export const useUploadVideo = () => {
+  // Initialize mutation
   const mutation = useMutation<Video, Error, VideoUpload>({
     mutationFn: uploadVideo,
+    onSuccess: () => {
+      toast.success("Video uploaded successfully!");
+    },
+    onError: () => {
+      toast.error("Unable to upload video.");
+    },
   });
 
-  return mutation; // Directly return the mutation object
+  // Return mutation along with its state for convenience
+  return mutation;
 };
 
 

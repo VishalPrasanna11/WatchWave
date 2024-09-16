@@ -18,7 +18,8 @@ const s3 = new S3Client({
 export const uploadVideo = async (req: Request, res: Response) => {
   try {
     const { title, description, metatags } = req.body;
-    console.log(title, description, metatags);
+    console.log('Incoming body:', req.body);
+    console.log('Uploaded file:', req.file);
     const filePath = path.join(__dirname, '../../uploads', req.file!.filename);
 
     // Read file content
@@ -38,7 +39,7 @@ export const uploadVideo = async (req: Request, res: Response) => {
     const video = await Video.create({
       title,
       description,
-      metatags: metatags.split(','),
+      metatags: metatags || [],
       videoUrl,
     });
 

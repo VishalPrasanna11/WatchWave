@@ -17,11 +17,11 @@ import { Button } from "@/components/ui/button";
 // Adjust schema to handle file uploads
 const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
-  videoFile: z
+  video: z
     .any()
     .refine((file) => file instanceof File, "Please upload a valid file"),
   description: z.string().optional(),
-  metatags:z.array(z.string()).optional(),
+  metatags: z.array(z.string()).optional(),
 });
 
 export type VideoFormData = z.infer<typeof formSchema>;
@@ -88,29 +88,28 @@ const UploadForm = ({
 
         {/* Meta Tags Field */}
         <FormField
-  control={form.control}
-  name="metatags"
-  render={({ field }) => (
-    <FormItem>
-      <FormLabel>Meta Tags</FormLabel>
-      <FormControl>
-        <Input
-          {...field}
-          placeholder="Comma separated tags"
-          className="bg-white"
-          onChange={(e) => field.onChange(e.target.value.split(',').map(tag => tag.trim()))} 
+          control={form.control}
+          name="metatags"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Meta Tags</FormLabel>
+              <FormControl>
+                <Input
+                  {...field}
+                  placeholder="Comma separated tags"
+                  className="bg-white"
+                  onChange={(e) => field.onChange(e.target.value.split(',').map(tag => tag.trim()))}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
         />
-      </FormControl>
-      <FormMessage />
-    </FormItem>
-  )}
-/>
-
 
         {/* Video File Field */}
         <FormField
           control={form.control}
-          name="videoFile"
+          name="video"
           render={({ field }) => (
             <FormItem>
               <FormLabel className="pr-4">Video File</FormLabel>
@@ -118,6 +117,7 @@ const UploadForm = ({
               <FormControl>
                 <input
                   type="file"
+                  name="video"
                   accept="video/*"
                   onChange={(e) => field.onChange(e.target.files?.[0])}
                   className="bg-white pr-4"

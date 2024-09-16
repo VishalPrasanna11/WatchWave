@@ -9,7 +9,7 @@ export type Video={
 }
 export type VideoUpload={
     title:string;
-    videoFile:File;
+    video:File;
     description:string;
     metatags:string[];
   
