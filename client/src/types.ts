@@ -5,4 +5,12 @@ export type Video={
     description:string;
     createdAt:string;
     updatedAt:string;
+    metatags:string[];
+}
+export type VideoUpload={
+    title:string;
+    video:File;
+    description:string;
+    metatags:string[];
+  
 }
