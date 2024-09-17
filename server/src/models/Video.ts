@@ -29,6 +29,19 @@ Video.init(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    videoId: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    uploadId: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    status: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: 'uploading',
+    },
   },
   {
     sequelize,
