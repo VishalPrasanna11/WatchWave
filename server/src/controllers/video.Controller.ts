@@ -1,10 +1,9 @@
 import { Request, Response } from 'express';
-import fs from 'fs';
-import path from 'path';
-import { S3Client, PutObjectCommand ,GetObjectCommand} from '@aws-sdk/client-s3';
+import { S3Client, CreateMultipartUploadCommand, UploadPartCommand,GetObjectCommand, CompleteMultipartUploadCommand, AbortMultipartUploadCommand } from '@aws-sdk/client-s3';
 import Video from '../models/Video';
+import { useQuery } from "@tanstack/react-query";
+import { v4 as uuidv4 } from 'uuid';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'; 
-
 // Initialize S3 client
 const s3 = new S3Client({
   region: process.env.AWS_REGION!,
@@ -14,47 +13,193 @@ const s3 = new S3Client({
   },
 });
 
-// Function to handle video upload
-export const uploadVideo = async (req: Request, res: Response) => {
+const BASE_URL = 'http://localhost:3000/api/videos'; // Adjust if necessary
+
+// Initialize multipart upload
+export const initializeMultipartUpload = async (req: Request, res: Response) => {
   try {
     const { title, description, metatags } = req.body;
-    console.log('Incoming body:', req.body);
-    console.log('Uploaded file:', req.file);
-    const filePath = path.join(__dirname, '../../uploads', req.file!.filename);
 
-    // Read file content
-    const fileContent = fs.readFileSync(filePath);
+    if (!title || !description) {
+      return res.status(400).json({ message: 'Title and description are required.' });
+    }
 
-    // Upload file to S3 (without ACL)
-    await s3.send(new PutObjectCommand({
+    const videoId = uuidv4();
+    const multipartUpload = await s3.send(new CreateMultipartUploadCommand({
       Bucket: process.env.S3_BUCKET_NAME!,
-      Key: `videos/${req.file!.filename}`,
-      Body: fileContent,
+      Key: `videos/${videoId}`,
     }));
 
-    // S3 file URL
-    const videoUrl = `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/videos/${req.file!.filename}`;
+    const uploadId = multipartUpload.UploadId;
 
-    // Save video metadata in your database
-    const video = await Video.create({
+    if (!uploadId) {
+      throw new Error('Failed to get UploadId from S3');
+    }
+
+    // TODO: Store uploadId, videoId, and video metadata in your database
+    const newVideo = await Video.create({
+      videoId,
       title,
       description,
-      metatags: metatags || [],
-      videoUrl,
+      metatags,
+      uploadId,
+      status: 'uploading',
+      videoUrl: '',
     });
 
-    // Delete local file after upload to S3
-    fs.unlinkSync(filePath);
-
-    res.status(201).json({
-      message: 'Video uploaded successfully!',
-      video,
-    });
+    res.status(200).json({ videoId, uploadId });
   } catch (error) {
-    res.status(500).json({ message: 'Video upload failed', error });
+    console.error('Error initializing multipart upload:', error);
+    res.status(500).json({ message: 'Failed to initialize upload.', error: (error as Error).message });
   }
 };
 
+// Upload chunk
+export const uploadChunk = async (req: Request, res: Response) => {
+  try {
+    const { chunkIndex, videoId, uploadId } = req.body;
+    const chunk = req.file?.buffer;
+
+    if (!chunk) {
+      return res.status(400).json({ message: 'No chunk data received.' });
+    }
+
+    // Validate chunk size
+    const maxChunkSize = 100 * 1024 * 1024; // 5MB
+    if (chunk.length > maxChunkSize) {
+      return res.status(400).json({ message: 'Chunk size exceeds maximum allowed size.' });
+    }
+
+    if (!videoId || !uploadId) {
+      return res.status(400).json({ message: 'Missing videoId or uploadId.' });
+    }
+
+    const partNumber = Number(chunkIndex);
+    if (isNaN(partNumber) || partNumber < 1) {
+      return res.status(400).json({ message: 'Invalid chunk index.' });
+    }
+
+    const partUpload = await s3.send(new UploadPartCommand({
+      Bucket: process.env.S3_BUCKET_NAME!,
+      Key: `videos/${videoId}`,
+      PartNumber: partNumber,
+      UploadId: uploadId,
+      Body: chunk,
+    }));
+
+    if (!partUpload.ETag) {
+      throw new Error('Failed to get ETag from S3 upload');
+    }
+
+    // TODO: Update upload progress in your database
+    // await Video.findOneAndUpdate({ videoId }, { $push: { uploadedParts: { partNumber, ETag: partUpload.ETag } } });
+    await Video.update(
+      { status: 'uploading' }, // Update status or other fields if needed
+      { where: { videoId } }
+    );
+
+    res.status(200).json({ message: 'Chunk uploaded successfully.', ETag: partUpload.ETag });
+  } catch (error) {
+    console.error('Error uploading chunk:', error);
+    res.status(500).json({ message: 'Failed to upload chunk.', error: (error as Error).message });
+  }
+};
+
+// Complete multipart upload
+
+export const completeMultipartUpload = async (req: Request, res: Response) => {
+  try {
+    const { videoId, uploadId, parts } = req.body;
+
+    // Check for required fields
+    if (!videoId || !uploadId) {
+      return res.status(400).json({ message: 'Missing videoId or uploadId.' });
+    }
+
+    // Validate parts array
+    if (!Array.isArray(parts) || parts.length === 0) {
+      return res.status(400).json({ message: 'Parts array is empty or not an array.' });
+    }
+
+    // Validate structure of each part
+    if (!parts.every(part => 
+        typeof part.PartNumber === 'number' && 
+        typeof part.ETag === 'string' && 
+        part.ETag.length > 0
+    )) {
+      return res.status(400).json({ message: 'Invalid parts array. Each part must have a PartNumber and ETag.' });
+    }
+
+    // Ensure parts are in ascending order
+    const sortedParts = [...parts].sort((a, b) => a.PartNumber - b.PartNumber);
+
+    // Check for missing parts
+    const expectedPartCount = sortedParts[sortedParts.length - 1].PartNumber;
+    if (sortedParts.length !== expectedPartCount) {
+      return res.status(400).json({ message: 'Missing parts in the upload.' });
+    }
+
+    // Log parts for debugging
+    console.log('Completing multipart upload with parts:', JSON.stringify(sortedParts));
+
+    // Complete the multipart upload
+    const result = await s3.send(new CompleteMultipartUploadCommand({
+      Bucket: process.env.S3_BUCKET_NAME!,
+      Key: `videos/${videoId}`,
+      UploadId: uploadId,
+      MultipartUpload: { Parts: sortedParts },
+    }));
+    const videoUrl = `https://${process.env.S3_BUCKET_NAME!}.s3.${process.env.AWS_REGION!}.amazonaws.com/videos/${videoId}`;
+
+    // Update video status and URL in your database
+    await Video.update(
+      { status: 'completed', uploadedAt: new Date(), videoUrl: videoUrl }, // Adjust fields as necessary
+      { where: { videoId } }
+    );
+  
+    res.status(200).json({ 
+      message: 'Upload completed successfully.',
+      location: result.Location,
+      key: result.Key,
+      videoUrl
+    });
+  } catch (error) {
+    console.error('Error completing multipart upload:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    res.status(500).json({ message: 'Failed to complete upload.', error: errorMessage });
+  }
+};
+
+// Abort multipart upload (optional)
+export const abortMultipartUpload = async (req: Request, res: Response) => {
+  try {
+    const { videoId, uploadId } = req.body;
+
+    if (!videoId || !uploadId) {
+      return res.status(400).json({ message: 'Missing videoId or uploadId.' });
+    }
+
+    await s3.send(new AbortMultipartUploadCommand({
+      Bucket: process.env.S3_BUCKET_NAME!,
+      Key: `videos/${videoId}`,
+      UploadId: uploadId,
+    }));
+
+    // TODO: Update video status in your database
+    // await Video.findOneAndUpdate({ videoId }, { status: 'aborted' });
+    await Video.update(
+      { status: 'aborted' },
+      { where: { videoId } }
+    );
+
+    res.status(200).json({ message: 'Upload aborted successfully.' });
+  } catch (error) {
+    console.error('Error aborting upload:', error);
+    res.status(500).json({ message: 'Failed to abort upload.', error: (error as Error).message });
+  }
+};
+
+// Fetch all videos
 const URL_EXPIRATION_TIME = 60 * 60;  // 1 hour
 
 // Function to get all videos
