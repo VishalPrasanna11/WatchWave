@@ -13,6 +13,7 @@ const s3 = new S3Client({
   },
 });
 
+
 const BASE_URL = 'http://localhost:3000/api/videos'; // Adjust if necessary
 
 // Initialize multipart upload
@@ -156,7 +157,8 @@ export const completeMultipartUpload = async (req: Request, res: Response) => {
       { status: 'completed', uploadedAt: new Date(), videoUrl: videoUrl }, // Adjust fields as necessary
       { where: { videoId } }
     );
-  
+    
+    
     res.status(200).json({ 
       message: 'Upload completed successfully.',
       location: result.Location,
@@ -211,9 +213,11 @@ export const getAllVideos = async (req: Request, res: Response) => {
     // Generate pre-signed URLs for each video
     const videosWithSignedUrls = await Promise.all(videos.map(async (video) => {
       // Generate a pre-signed URL for the video
+      const url = video.videoUrl;
+      const key = url.split('com/')[1];
       const command = new GetObjectCommand({
         Bucket: process.env.S3_BUCKET_NAME!,
-        Key: `videos/${video.videoUrl.split('/').pop()}`,  // Extract the filename from the URL
+        Key: key  // Extract the filename from the URL
       });
 
       // Generate the pre-signed URL
