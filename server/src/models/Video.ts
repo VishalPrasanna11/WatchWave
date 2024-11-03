@@ -5,8 +5,10 @@ class Video extends Model {
   public id!: number;
   public title!: string;
   public description!: string;
-  public metatags!: string[];
   public videoUrl!: string;
+  public publisherName!: string;
+  public duration!: number;
+  public thumbnailUrl!: string;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
 }
@@ -45,7 +47,7 @@ Video.init(
   },
   {
     sequelize,
-    modelName: 'Video',
+    modelName: 'WatchWaveVideo',
   }
 );
 
