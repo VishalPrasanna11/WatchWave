@@ -1,19 +1,20 @@
 import { Route, Routes } from "react-router-dom"
-import Layout from "./layouts/layout" // Import the 'Layout' component
-import HomePage from "./pages/HomePage";
+import Layout from "./layouts/layout" 
 import UploadPage from "./pages/UploadPage";
 import WatchPage from "./pages/WatchPage";
+import HomePage from "./pages/HomePage";
 
 
 const AppRouter = () => {
     return(
         <Routes>
             <Route path="/" element={
-            <Layout showHero><HomePage/></Layout>} />
+            <Layout><HomePage/></Layout>} />
+
             <Route path="/upload" element={
-            <Layout showHero={false}><UploadPage/></Layout>} />
-            <Route path="/watch" element={
-            <Layout showHero={false}><WatchPage/></Layout>} />
+            <Layout><UploadPage/></Layout>} />
+             <Route path="/watch" element={
+            <Layout><WatchPage/></Layout>} />
         </Routes>
     )}
 export default AppRouter;
