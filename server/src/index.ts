@@ -4,6 +4,7 @@ import sequelize from './config/database';
 import uploadRoutes from './routes/upload';
 import { connectToPostgres } from './config/pgClient';
 import cors from 'cors';
+import userRoutes from './routes/user.Route';
 
 const app = express();
 app.use(cors());
@@ -12,6 +13,7 @@ app.use(express.json());
 
 // Routes
 app.use('/api/videos', uploadRoutes);
+app.use('/v1/', userRoutes);
 
 // Global error handler
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
@@ -25,8 +27,8 @@ const init = async () => {
     // await connectToPostgres(); // Connect to PostgreSQL directly
     await sequelize.sync(); // Sync Sequelize models
 
-    app.listen(3000, () => {
-      console.log('Server is running on port 3000');
+    app.listen(8081, () => {
+      console.log('Server is running on port 8081');
     });
   } catch (error) {
     console.error('Error initializing application:', error);
