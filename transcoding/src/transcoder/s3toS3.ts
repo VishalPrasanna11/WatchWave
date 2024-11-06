@@ -7,8 +7,8 @@ import s3 from '../config/s3';
 
 ffmpeg.setFfmpegPath(ffmpegStatic as string);
 
-const bucketName = process.env.S3_BUCKET_NAME;
-console.log('bucketName:', bucketName);
+const bucketName = process.env.AWS_Bucket_Name;
+
 const hlsFolder = 'hls';
 
 const s3ToS3 = async (s3Url: string) => {
@@ -19,7 +19,7 @@ const s3ToS3 = async (s3Url: string) => {
     try {
         console.log('Downloading s3 mp4 file locally');
         const urlParts = new URL(s3Url);
-        const key = urlParts.pathname.substring(1); // Remove leading '/'
+        const key = urlParts.pathname.substring(1);
         const mp4FileName = path.basename(key);
         const localMp4Path = 'local.mp4';
 

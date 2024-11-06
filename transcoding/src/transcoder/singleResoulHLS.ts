@@ -84,7 +84,7 @@ export async function processVideo(s3Url: string, outputBucket: string) {
   const outputDir = path.join(__dirname, 'output');
   
   // Extract bucket and key from s3Url
-  const bucketName = 'mywatchwave';
+  const bucketName = process.env.AWS_Bucket_Name!;
   const key = s3Url.split('/').slice(3).join('/');
 
   try {

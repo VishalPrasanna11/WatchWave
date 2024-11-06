@@ -4,25 +4,33 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import LoadingButton from "@/components/LoadingButton";
+import LoadingButton from "../components/LoadingButton";
 import { Button } from "@/components/ui/button";
 
-// Adjust schema to handle file uploads
+// Adjust schema to handle file uploads and duration
 const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
   video: z
     .any()
-    .refine((file) => file instanceof File, "Please upload a valid file"),
+    .refine((file) => file instanceof File, "Please upload a valid video file"),
+  thumbnail: z
+    .any()
+    .refine((file) => file instanceof File, "Please upload a valid image file"),
   description: z.string().optional(),
-  metatags: z.array(z.string()).optional(),
+  duration: z
+    .string()
+    .min(1, "Duration is required"),
+  publisherName: z
+    .string()
+    .min(1, "Publisher name is required"),
 });
+
 
 export type VideoFormData = z.infer<typeof formSchema>;
 
@@ -47,13 +55,10 @@ const UploadForm = ({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSave)}
-        className="space-y-4 bg-gray-50 rounded-lg md:p-10"
+        className="space-y-4 border border-gray-300 rounded-lg p-6 bg-white shadow-md"
       >
         <div>
-          <h2 className="text-2xl font-bold">{title}</h2>
-          <FormDescription>
-            Provide the details of your video below.
-          </FormDescription>
+          <h2> <b>Provide the details of your video below. </b></h2>
         </div>
 
         {/* Title Field */}
@@ -71,7 +76,7 @@ const UploadForm = ({
           )}
         />
 
-        {/* Description Field */}
+        {/* Description Field as Textarea */}
         <FormField
           control={form.control}
           name="description"
@@ -79,27 +84,46 @@ const UploadForm = ({
             <FormItem>
               <FormLabel>Description</FormLabel>
               <FormControl>
-                <Input {...field} className="bg-white" />
+                <textarea
+                  {...field}
+                  className="bg-white border rounded-md w-full h-24 p-2"
+                  placeholder="Enter description here..."
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
 
-        {/* Meta Tags Field */}
+        {/* Duration Field */}
         <FormField
           control={form.control}
-          name="metatags"
+          name="duration"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Meta Tags</FormLabel>
+              <FormLabel>Duration (in seconds)</FormLabel>
               <FormControl>
                 <Input
+                  type="text" // Now string input type
                   {...field}
-                  placeholder="Comma separated tags"
                   className="bg-white"
-                  onChange={(e) => field.onChange(e.target.value.split(',').map(tag => tag.trim()))}
+                  placeholder="Enter video duration"
                 />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Publisher Name Field */}
+        <FormField
+          control={form.control}
+          name="publisherName"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Publisher Name</FormLabel>
+              <FormControl>
+                <Input {...field} className="bg-white" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -113,13 +137,43 @@ const UploadForm = ({
           render={({ field }) => (
             <FormItem>
               <FormLabel className="pr-4">Video File</FormLabel>
-              <br />
               <FormControl>
                 <input
                   type="file"
                   name="video"
                   accept="video/*"
-                  onChange={(e) => field.onChange(e.target.files?.[0])}
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      field.onChange(file);
+                    }
+                  }}
+                  className="bg-white pr-4"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Thumbnail File Field */}
+        <FormField
+          control={form.control}
+          name="thumbnail"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="pr-4">Thumbnail Image</FormLabel>
+              <FormControl>
+                <input
+                  type="file"
+                  name="thumbnail"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      field.onChange(file);
+                    }
+                  }}
                   className="bg-white pr-4"
                 />
               </FormControl>
@@ -132,7 +186,7 @@ const UploadForm = ({
         {isLoading ? (
           <LoadingButton />
         ) : (
-          <Button type="submit" className="bg-orange-500">
+          <Button type="submit" className="bg-black">
             {buttonText}
           </Button>
         )}
@@ -140,5 +194,6 @@ const UploadForm = ({
     </Form>
   );
 };
+
 
 export default UploadForm;

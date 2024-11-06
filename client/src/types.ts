@@ -5,12 +5,13 @@ export type Video={
     description:string;
     createdAt:string;
     updatedAt:string;
-    metatags:string[];
 }
-export type VideoUpload={
-    title:string;
-    video:File;
-    description:string;
-    metatags:string[];
+export interface VideoUpload {
+    title: string;
+    description?: string;
+    video: File;
+    thumbnail: File;  // New field for thumbnail image
+    publisher: string;
+    duration:String // New field for publisher name
+  }
   
-}

@@ -6,6 +6,6 @@ const s3 = new AWS.S3({
     region: process.env.AWS_REGION
     
 });
-console.log('s3:', s3.config);
+
 
 export default s3;

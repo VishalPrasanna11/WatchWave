@@ -1,50 +1,67 @@
-# React + TypeScript + Vite
+# [shadcn/ui sidebar](https://shadcn-ui-sidebar.consumableai.com)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A stunning and functional retractable sidebar for React.js built on top of [shadcn/ui](https://ui.shadcn.com) complete with desktop and mobile responsiveness.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Retractable mini and wide sidebar
+- Scrollable sidebar menu
+- Sheet menu for mobile
+- Grouped menu with labels
+- Collapsible submenu
+- Extracted menu items list
 
-## Expanding the ESLint configuration
+## Tech/framework used
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+- React.js 18
+- Shadcn/ui
+- Tailwind CSS
+- TypeScript
+- Zustand
 
-- Configure the top-level `parserOptions` property like this:
+## Starting the project locally
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+1. Clone the repository
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+   ```bash
+   git clone https://github.com/consumableai/shadcn-ui-sidebar.git
+   ```
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+2. Install dependencies
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+   ```bash
+   cd shadcn-ui-sidebar
+   npm install
+   ```
+
+3. Run the development server
+
+   ```bash
+   npm run dev
+   ```
+
+## Demo
+
+The app is hosted on Consumable AI domain. [Click here](https://shadcn-ui-sidebar.consumableai.com) to visit.
+<br>
+Direct demo link: `https://shadcn-ui-sidebar.consumableai.com`
+
+## Screenshots
+
+#### Light mode
+
+![Light mode](/screenshots/screenshot-1.png)
+
+#### Dark mode
+
+![Dark mode](/screenshots/screenshot-2.png)
+
+#### Mini sidebar
+
+![Mini sidebar](/screenshots/screenshot-3.png)
+
+#### Sheet menu
+
+<img src="/screenshots/screenshot-4.png" width="300">
+
+[credits salimi-my](https://github.com/salimi-my/shadcn-ui-sidebar) 
