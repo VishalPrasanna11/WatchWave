@@ -76,6 +76,7 @@ export const updateUser = async (req: Request, res: Response): Promise<void> => 
 
 export const getUser = async (req: Request, res: Response): Promise<void> => {
   try {
+    console.log(`VBas`,req.user);
     const userId = req.user?.id;
     const user = await User.findOne({ where: { id: userId } });
 

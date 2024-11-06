@@ -34,10 +34,7 @@ router.head('/user/self', (req, res) => {
 
 router.get(
     '/user/self',
-    basicAuth,
-    timeRequest('user', 'get', getUser),
-    () => {
-    }
+    basicAuth,getUser
 );
 
 

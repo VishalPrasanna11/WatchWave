@@ -5,7 +5,8 @@ import uploadRoutes from './routes/upload';
 import { connectToPostgres } from './config/pgClient';
 import cors from 'cors';
 import userRoutes from './routes/user.Route';
-
+import { connectKafkaProducer } from './config/kafka';
+import { startKafkaConsumer } from './config/kafkaconsume';
 const app = express();
 app.use(cors());
 // Middleware
@@ -29,6 +30,9 @@ const init = async () => {
 
     app.listen(8081, () => {
       console.log('Server is running on port 8081');
+      connectKafkaProducer();
+      startKafkaConsumer();
+      
     });
   } catch (error) {
     console.error('Error initializing application:', error);

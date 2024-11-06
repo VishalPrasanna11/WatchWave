@@ -5,7 +5,7 @@ const LoadingButton = () => {
     return (
         <Button disabled>
             <Loader2 className="animate-spin mr-2 h-4 w-4" />
-            Loading
+            Uploading......
         </Button>
     );
 }

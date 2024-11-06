@@ -9,12 +9,20 @@ class Video extends Model {
   public publisherName!: string;
   public duration!: number;
   public thumbnailUrl!: string;
+  public videoId!: string;
+  public uploadId!: string;
+  public status!: string;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
 }
 
 Video.init(
   {
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
     title: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -23,9 +31,17 @@ Video.init(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    metatags: {
-      type: DataTypes.ARRAY(DataTypes.STRING),
-      allowNull: true,
+    publisherName: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    duration: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    thumbnailUrl: {
+      type: DataTypes.STRING,
+      allowNull: false,
     },
     videoUrl: {
       type: DataTypes.STRING,
@@ -47,7 +63,8 @@ Video.init(
   },
   {
     sequelize,
-    modelName: 'WatchWaveVideo',
+    tableName: 'WatchWave-Videos', // specify table name if needed
+    timestamps: true, // automatically manages createdAt and updatedAt
   }
 );
 

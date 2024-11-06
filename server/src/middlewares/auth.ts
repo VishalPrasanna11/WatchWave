@@ -5,7 +5,7 @@ import User from '../models/User';
 
 export const basicAuth = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   const authHeader = req.headers.authorization;
-
+  console.log(`VBassss`,authHeader);
   if (!authHeader || !authHeader.startsWith('Basic ')) {
     res.status(401).json({ error: 'Authorization header missing or incorrect' });
     return;
